@@ -15,7 +15,7 @@
   {
     if ( from >= to )
     {
-      return cb(null, dataHandler.heartRateRaw);
+      return cb(null, dataHandler.heartRate);
     }
     if ( dataHandler.heartRateRaw[_dateFormat(from)] === void 0 )
     {
@@ -40,13 +40,32 @@
         var s = _timeFormat.parse('00:00:00').getTime();
         for ( var i = s; i < s+86400000; i+=60000 )
         {
-          if (!rec.has(_timeFormat(new Date(i))))
+          if (!rec.has(new Date(i)))
           {
             dataHandler.heartRateRaw[_dateFormat(from)].push( {time: new Date(i), value: null} );
           };
         }
         dataHandler.heartRateRaw[_dateFormat(from)].sort(function(a,b){return (a.time < b.time)?-1:1;});
-        dataHandler.heartRateExtent[1] = Math.max( dataHandler.heartRateExtent[1], d3.max(dataHandler.heartRateRaw[_dateFormat(from)], function(d){return d.value;}) );
+        var len = dataHandler.heartRateRaw[_dateFormat(from)].length;
+        var unit = 5;
+        dataHandler.heartRate[_dateFormat(from)] = d3.range( 0, len, unit ).map(function(d)
+        {
+          var ave = 0.0;
+          var cnt = 0;
+          for (var i = d; i < d+unit; ++i)
+          {
+            if (dataHandler.heartRateRaw[_dateFormat(from)][i].value != null)
+            {
+              ave += dataHandler.heartRateRaw[_dateFormat(from)][i].value;
+              ++cnt;
+            }
+          }
+          return {
+            time: dataHandler.heartRateRaw[_dateFormat(from)][d].time,
+            value: (cnt===0)?null:(ave/cnt)
+          };
+        });
+        dataHandler.heartRateExtent[1] = Math.max( dataHandler.heartRateExtent[1], d3.max(dataHandler.heartRate[_dateFormat(from)], function(d){return d.value;}) );
         dataHandler.getHeartRate( new Date(from.getTime() + 86400000), to, cb );
       });
     }
