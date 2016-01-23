@@ -6,6 +6,9 @@ var config = require('../config');
 var passport = require('passport');
 var FitbitStrategy = require( 'passport-fitbit-oauth2' ).FitbitOAuth2Strategy;
 
+var https = require('https');
+var querystring = require('querystring');
+
 passport.use(new FitbitStrategy(
   {
     clientID:     config.fbOauth2ClientId,
@@ -31,6 +34,7 @@ var authCheck = function(req, res, next)
 
 router.get('/heartrate', authCheck, function(req, res, next)
 {
+
   console.log(req.session.passport);
   res.json({res:'ok'});
 });
