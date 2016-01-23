@@ -12,4 +12,4 @@ block content
   a(href='/api/auth/logout') ログアウト
   div#line(style='height:500px;width:960px;')
   script.
-    d3.lineChart.init(d3.select('#line'), d3.time.format('%Y/%m/%d').parse('2016/01/10'), d3.time.format('%Y/%m/%d').parse('2016/01/17'));
+    d3.lineChart.init(d3.select('#line'), new Date( new Date().getTime() - 86400000*8 ), new Date());
