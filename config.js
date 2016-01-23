@@ -1,7 +1,9 @@
 
 var config = {
-  'fbOauth2AuthURI': 'https://www.fitbit.com/oauth2/authorize',
-  'fbOauth2RefreshURI': 'https://api.fitbit.com/oauth2/token'
+  fbOauth2AuthURI: 'https://www.fitbit.com/oauth2/authorize',
+  fbOauth2RefreshURI: 'https://api.fitbit.com/oauth2/token',
+  apiRoot: 'api.fitbit.com',
+  heartrate1dURI: function(startDate){return '/1/user/-/activities/heart/date/'+ startDate +'/1d/1min.json'}
 };
 
 try

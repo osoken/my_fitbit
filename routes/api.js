@@ -32,11 +32,42 @@ var authCheck = function(req, res, next)
   next();
 }
 
-router.get('/heartrate', authCheck, function(req, res, next)
+router.get('/heartrate/:date(\\d{4}-\\d{2}-\\d{2})', authCheck, function(req, res, next)
 {
+  var options = {
+    host: config.apiRoot,
+    path: config.heartrate1dURI(req.params.date),
+    headers:{
+      Authorization: 'Bearer ' + req.session.passport.user.accessToken
+    },
 
-  console.log(req.session.passport);
-  res.json({res:'ok'});
+  };
+  var req2 = https.request(options, function(res2)
+  {
+    var body = '';
+    res2.on('data', function (chunk) {
+      body += chunk;
+    });
+    res2.on('end', function() {
+      if (res2.statusCode !== 200)
+      {
+        var err = new Error(res2.statusMessage);
+        err.status = res2.statusCode;
+        return res.sendStatus(err.status).send(err);
+      }
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        e.status = 500;
+        return res.sendStatus(e.status).send(e);
+      }
+      return res.json(body);
+    })
+  });
+  req2.on('error', function(e) {
+    return res.send(e, null);
+  });
+  req2.end();
 });
 
 router.get('/auth', passport.authenticate('fitbit', { scope: ['activity','heartrate','location','profile'] }));
