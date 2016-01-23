@@ -5,11 +5,14 @@ block stylesheets
 block javascripts
   script(src='/javascripts/dataHandler.js')
   script(src='/javascripts/lineChart.js')
+  script(src='/javascripts/circle.js')
 
 block content
   h1= title
   p Welcome to #{title}
   a(href='/api/auth/logout') ログアウト
   div#line(style='height:500px;width:960px;')
+  div#circle(style='height:500px;width:960px;')
   script.
-    d3.lineChart.init(d3.select('#line'), new Date( new Date().getTime() - 86400000*8 ), new Date());
+    d3.lineChart.init(d3.select('#line'), new Date( new Date().getTime() - 86400000*7 ), new Date());
+    d3.circle.init(d3.select('#line'), new Date( new Date().getTime() - 86400000*7 ), new Date());
