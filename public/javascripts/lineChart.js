@@ -27,7 +27,7 @@
     var area = d3.svg.area()
       .x(function(d,i) { return xScale(d.time);})
       .y0(function(d,i) { return yScale(0);})
-      .y1(function(d,i) { return (d.value==null)?yScale(0):yScale(d.value);});
+      .y1(function(d,i) { return (d.value==null)?yScale(50):yScale(d.value);});
     d3.dataHandler.getHeartRate(from, to, function(err,dat)
     {
       if (err != null)
@@ -51,7 +51,7 @@
         .each(function(data)
         {
           d3.select(this).attr('fill', colorPalette(data.key)).attr('opacity', 0.2)
-            .datum(data.value.filter(function(d){return d.value!=null;})).attr('d',area);
+            .datum(data.value).attr('d',area);
         });
 
     });

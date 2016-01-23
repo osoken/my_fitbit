@@ -52,14 +52,12 @@ router.get('/heartrate/:date(\\d{4}-\\d{2}-\\d{2})', authCheck, function(req, re
       if (res2.statusCode !== 200)
       {
         var err = new Error(res2.statusMessage);
-        err.status = res2.statusCode;
-        return res.sendStatus(err.status).send(err);
+        return res.sendStatus(res2.statusCode).send(err);
       }
       try {
         body = JSON.parse(body);
       } catch (e) {
-        e.status = 500;
-        return res.sendStatus(e.status).send(e);
+        return res.sendStatus(500).send(e);
       }
       return res.json(body);
     })
