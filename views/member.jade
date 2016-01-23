@@ -4,9 +4,12 @@ block stylesheets
 
 block javascripts
   script(src='/javascripts/dataHandler.js')
+  script(src='/javascripts/lineChart.js')
 
 block content
   h1= title
   p Welcome to #{title}
   a(href='/api/auth/logout') ログアウト
-  a(href='/api/heartrate') 心拍数
+  div#line(style='height:500px;width:960px;')
+  script.
+    d3.lineChart.init(d3.select('#line'), d3.time.format('%Y/%m/%d').parse('2016/01/10'), d3.time.format('%Y/%m/%d').parse('2016/01/17'));
