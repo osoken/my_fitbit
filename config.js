@@ -1,3 +1,4 @@
+
 var config = {
   'fbOauth2AuthURI': 'https://www.fitbit.com/oauth2/authorize',
   'fbOauth2RefreshURI': 'https://api.fitbit.com/oauth2/token'
