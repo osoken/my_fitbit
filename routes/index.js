@@ -12,7 +12,8 @@ router.get('/', function(req, res, next) {
   }
   else
   {
-    res.render('index', { title: 'Fitbit'});
+    console.log(req.session);
+    res.render('member', { title: 'Fitbit'});
   }
 });
 
