@@ -14,15 +14,25 @@ passport.use(new FitbitStrategy(
   },
   function(accessToken, refreshToken, profile, done)
   {
-    passport.session.fitbitAccessToken = accessToken;
-    passport.session.fitbitRefreshToken = refreshToken;
+    profile.accessToken = accessToken;
+    profile.refreshToken = refreshToken;
     return done(null, profile);
   }
 ));
 
-router.get('/heartrate', function(req, res, next)
+var authCheck = function(req, res, next)
 {
+  if (req.session.passport === void 0 || req.session.passport.user === void 0)
+  {
+    return res.sendStatus(401);
+  }
+  next();
+}
 
+router.get('/heartrate', authCheck, function(req, res, next)
+{
+  console.log(req.session.passport);
+  res.json({res:'ok'});
 });
 
 router.get('/auth', passport.authenticate('fitbit', { scope: ['activity','heartrate','location','profile'] }));
