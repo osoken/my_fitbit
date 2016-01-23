@@ -5,6 +5,7 @@ var config = require('../config');
 
 var passport = require('passport');
 var FitbitStrategy = require( 'passport-fitbit-oauth2' ).FitbitOAuth2Strategy;
+var fs = require('fs');
 
 var https = require('https');
 var querystring = require('querystring');
@@ -27,20 +28,77 @@ var authCheck = function(req, res, next)
 {
   if (req.session.passport === void 0 || req.session.passport.user === void 0)
   {
-    return res.sendStatus(401);
+    res.sendStatus(401).end();
   }
-  next();
+  else
+  {
+    next();
+  }
 }
 
-router.get('/heartrate/:date(\\d{4}-\\d{2}-\\d{2})', authCheck, function(req, res, next)
+var makeSureCacheDir = function(req,res,next)
 {
+  fs.access('cache', fs.F_OK, function(err)
+  {
+    if (err != null)
+    {
+      fs.mkdir('cache', function(err)
+      {
+        if (err != null)
+        {
+          res.sendStatus('500').end();
+        }
+        else {
+          next();
+        }
+      });
+    }
+    else
+    {
+      next();
+    }
+  });
+}
+
+var createCacheName = function(req)
+{
+  return 'cache/' + req.session.passport.user.id+'_'+req.params.date+'.json';
+}
+
+var checkCache = function(req, res, next)
+{
+  fs.access( createCacheName(req), fs.F_OK, function(err)
+  {
+    if (err != null)
+    {
+      next();
+    }
+    else
+    {
+      fs.readFile(createCacheName(req), 'utf-8', function(err,dat)
+      {
+        if (err != null)
+        {
+          next();
+        }
+        else
+        {
+          return res.end(dat);
+        }
+      });
+    }
+  });
+}
+
+router.get('/heartrate/:date(\\d{4}-\\d{2}-\\d{2})', authCheck, makeSureCacheDir, checkCache, function(req, res, next)
+{
+  console.log('requested!');
   var options = {
     host: config.apiRoot,
     path: config.heartrate1dURI(req.params.date),
     headers:{
       Authorization: 'Bearer ' + req.session.passport.user.accessToken
-    },
-
+    }
   };
   var req2 = https.request(options, function(res2)
   {
@@ -52,18 +110,17 @@ router.get('/heartrate/:date(\\d{4}-\\d{2}-\\d{2})', authCheck, function(req, re
       if (res2.statusCode !== 200)
       {
         var err = new Error(res2.statusMessage);
-        return res.sendStatus(res2.statusCode).send(err);
+        err.statusCode = res2.statusCode;
+        return res.end(err);
       }
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        return res.sendStatus(500).send(e);
-      }
-      return res.json(body);
+      fs.writeFile(createCacheName(req), body, function(err)
+      {
+        return res.end(body);
+      });
     })
   });
   req2.on('error', function(e) {
-    return res.send(e, null);
+    return res.send(e, null).end();
   });
   req2.end();
 });
