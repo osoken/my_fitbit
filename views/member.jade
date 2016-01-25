@@ -3,16 +3,20 @@ extends layout
 block stylesheets
 
 block javascripts
+  script(src='/javascripts/svg2canvas.js')
   script(src='/javascripts/dataHandler.js')
   script(src='/javascripts/lineChart.js')
   script(src='/javascripts/circle.js')
+  script(src='/javascripts/square.js')
 
 block content
   h1= title
   p Welcome to #{title}
   a(href='/api/auth/logout') ログアウト
-  div#line(style='height:500px;width:960px;')
-  div#circle(style='height:500px;width:960px;')
+  // div#line(style='height:500px;width:960px;')
+  div#circle(style='height:1080px;width:1920px;')
+  // div#square(style='height:500px;width:960px;')
   script.
-    d3.lineChart.init(d3.select('#line'), new Date( new Date().getTime() - 86400000*7 ), new Date());
-    d3.circle.init(d3.select('#line'), new Date( new Date().getTime() - 86400000*7 ), new Date());
+    //d3.lineChart.init(d3.select('#line'), new Date( new Date().getTime() - 86400000*8 ), new Date(new Date().getTime() - 86400000*1));
+    d3.circle.init(d3.select('#circle'), new Date( new Date().getTime() - 86400000*7 ), new Date(new Date().getTime() - 86400000*0));
+    //d3.square.init(d3.select('#square'), new Date( new Date().getTime() - 86400000*8 ), new Date(new Date().getTime() - 86400000*1));
