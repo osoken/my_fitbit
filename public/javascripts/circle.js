@@ -43,15 +43,14 @@
         root.append('div').text('empty data');
         return;
       }
-      var radius = 0.36*Math.min(width,height);
-
-      var xScale = d3.time.scale().range([-Math.PI/2,3/2*Math.PI]).domain([_timeFormat.parse('00:00:00'), new Date(_timeFormat.parse('00:00:00').getTime()+86400000)]);
-      var yScale = d3.scale.linear().range([0, radius]).domain([0,100]).domain(d3.dataHandler.heartRateExtent);
-
-      var line = d3.svg.line()
-        .interpolate('basis-closed')
-        .x(function(d,i) { return (d.value==null)?yScale(50)*Math.cos(xScale(d.time)):yScale(d.value)*Math.cos(xScale(d.time));})
-        .y(function(d,i) { return (d.value==null)?yScale(50)*Math.sin(xScale(d.time)):yScale(d.value)*Math.sin(xScale(d.time));});
+      var radius = 0.2*Math.min(width,height);
+      var layouter = d3.radialline()
+        .outerRadius(radius)
+        .radiusExtent(function(d,f){return [0, d3.max(f(d))];})
+        .angle(function(d){return d.time.getTime();})
+        .radius(function(d){return d.value;})
+        .startAngle(-Math.PI/2)
+        .endAngle(3/2*Math.PI);
 
       var centerXScale = d3.scale.ordinal().rangePoints([-(width-2*radius)/2, (width-2*radius)/2]).domain(days);
       var centerYScale = d3.scale.ordinal().rangePoints([-(height-2*radius)/2, (height -2*radius)/2]).domain([0,1]);
@@ -66,7 +65,7 @@
         .each(function(data)
         {
           d3.select(this).attr('fill', colorPalette(data.key)).attr('opacity', 1)
-            .datum(data.value).attr('d',line);
+            .datum(data.value).attr('d',layouter);
         });
       plotLayer.selectAll('g')
         .data(d3.entries(dat))
@@ -76,21 +75,21 @@
         .each(function(data)
         {
           d3.select(this).attr('fill', colorPalette(data.key)).attr('opacity', 0.5).attr('stroke', '#FFF').attr('stroke-wdith',4)
-            .datum(data.value).attr('d',line);
+            .datum(data.value).attr('d',layouter);
         });
       axisLayer.selectAll('g')
         .data(d3.entries(dat))
         .enter().append('g')
         .attr('transform', function(d,i){return 'translate('+centerXScale(d.key)+','+centerYScale(i%2)+')';})
         .append('circle')
-        .attr('cx', 0).attr('cy', 0).attr('r', yScale(45)).attr('fill', 'none').attr('stroke', 'rgba(255,255,255,1)').attr('stroke-width', 2);
+        .attr('cx', 0).attr('cy', 0).attr('r', (0.6*radius)).attr('fill', 'none').attr('stroke', 'rgba(255,255,255,1)').attr('stroke-width', 2);
       axisLayer.selectAll('g')
         .append('text')
         .text(function(d){return _displayDateFormat(_dateFormat.parse(d.key));})
         .attr('fill','rgba(255,255,255,1)').attr('font-family','Impact')
         .attr('stroke', 'rgba(0,0,0,0.1)').attr('stroke-width', 2)
         .attr('dominant-baseline','middle').attr('text-anchor', 'middle')
-        .attr('font-size', yScale(36));
+        .attr('font-size', 0.55*radius);
       svg.on('click', function()
         {
           svg2canvas(svg.node(),root.node(), function(err,canvas)
