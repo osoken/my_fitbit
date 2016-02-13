@@ -41,7 +41,7 @@
         }
         dataHandler.heartRateRaw[dateStr].sort(function(a,b){return (a.time < b.time)?-1:1;});
         var len = dataHandler.heartRateRaw[dateStr].length;
-        var unit = 2;
+        var unit = 4;
         dataHandler.heartRate[dateStr] = d3.range( 0, len, unit ).map(function(d)
         {
           var ave = 0.0;

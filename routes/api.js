@@ -125,6 +125,76 @@ router.get('/heartrate/:date(\\d{4}-\\d{2}-\\d{2})', authCheck, makeSureCacheDir
   req2.end();
 });
 
+router.get('/activities-list', authCheck, function(req, res, next)
+{
+  var options = {
+    host: config.apiRoot,
+    path: '/1/user/-/activities.json',
+    headers:{
+      Authorization: 'Bearer ' + req.session.passport.user.accessToken
+    }
+  };
+  var req2 = https.request(options, function(res2)
+  {
+    var body = '';
+    res2.on('data', function (chunk) {
+      body += chunk;
+    });
+    res2.on('end', function() {
+      if (res2.statusCode !== 200)
+      {
+        var err = new Error(res2.statusMessage);
+        err.statusCode = res2.statusCode;
+        return res.end(err);
+      }
+      fs.writeFile(createCacheName(req), body, function(err)
+      {
+        return res.end(body);
+      });
+    })
+  });
+  req2.on('error', function(e) {
+    return res.send(e, null).end();
+  });
+  req2.end();
+});
+
+router.get('/test', authCheck, function(req, res, next)
+{
+  var options = {
+    host: config.apiRoot,
+    path: config.activityURI(1653997983),
+    headers:{
+      Authorization: 'Bearer ' + req.session.passport.user.accessToken
+    }
+  };
+  console.log(options);
+  var req2 = https.request(options, function(res2)
+  {
+    var body = '';
+    res2.on('data', function (chunk) {
+      console.log(body);
+      body += chunk;
+    });
+    res2.on('end', function() {
+      if (res2.statusCode !== 200)
+      {
+        var err = new Error(res2.statusMessage);
+        err.statusCode = res2.statusCode;
+        return res.end(err);
+      }
+      fs.writeFile(createCacheName(req), body, function(err)
+      {
+        return res.end(body);
+      });
+    })
+  });
+  req2.on('error', function(e) {
+    return res.send(e, null).end();
+  });
+  req2.end();
+});
+
 router.get('/auth', passport.authenticate('fitbit', { scope: ['activity','heartrate','location','profile'] }));
 
 router.get('/auth/callback', passport.authenticate( 'fitbit', {

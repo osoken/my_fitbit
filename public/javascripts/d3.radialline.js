@@ -7,66 +7,75 @@
       return d;
     }
   }
-  var _angle = function(d){return d[0];}
-  var _angleExtent = d3.extent;
-  var _radius = function(d){return d[1];}
-  var _radiusExtent = d3.extent;
-  var _innerRadius = constant(0);
-  var _outerRadius = constant(1);
-  var _startAngle = constant(0);
-  var _endAngle = constant(Math.PI * 2);
+  var _angle = function(d){return d[0];};
+  var _radius = function(d){return d[1];};
+  var _radiusRange = constant([0,1]);
+  var _angleRange = constant([0, Math.PI*2]);
+  var _clockwise = constant(true);
   var _interpolate = constant('basis-closed');
+  var _angleDomain = d3.extent;
+  var _radiusDomain = d3.extent;
+  var _angleScale = function(){return d3.scale.linear();};
+  var _radiusScale = function(){return d3.scale.linear();};
 
   var _radialline = function()
   {
     function radialline(data)
     {
-      var r0 = +_innerRadius.apply(this, arguments);
-      var r1 = +_outerRadius.apply(this, arguments);
-      var a0 = +_startAngle.apply(this, arguments);
-      var a1 = +_endAngle.apply(this, arguments);
+      var c = !!_clockwise.apply(this, arguments);
       var i = ''+_interpolate.apply(this, arguments);
       var af = _angle;
       var rf = _radius;
-
-      var angleScale = d3.scale.linear()
-        .range([a0, a1])
-        .domain(_angleExtent(data, af));
-      var radiusScale = d3.scale.linear()
-        .range([r0, r1])
-        .domain(_radiusExtent(data, rf));
-
-      return d3.svg.line()
-        .x(function(d){return radiusScale(rf(d))*Math.cos(angleScale(af(d)));})
-        .y(function(d){return radiusScale(rf(d))*Math.sin(angleScale(af(d)));})
-        .interpolate(i)(data);
+      var as = _angleScale.apply(this, arguments).range(_angleRange.apply(this,arguments)).domain(_angleDomain(data,af));
+      var rs = _radiusScale.apply(this, arguments).range(_radiusRange.apply(this,arguments)).domain(_radiusDomain(data,rf));
+      if (c)
+      {
+        return d3.svg.line()
+          .x(function(d){return rs(rf(d))*Math.cos(as(af(d)));})
+          .y(function(d){return rs(rf(d))*Math.sin(as(af(d)));})
+          .interpolate(i)(data);
+      }
+      else
+      {
+        return d3.svg.line()
+          .x(function(d){return rs(rf(d))*Math.cos(-as(af(d)));})
+          .y(function(d){return rs(rf(d))*Math.sin(-as(af(d)));})
+          .interpolate(i)(data);
+      }
     };
     radialline.angle = function(_) {
       return arguments.length ? (_angle = typeof _ === "function" ? _ : constant(+_), radialline) : _angle;
     };
-    radialline.angleExtent = function(_) {
-      return arguments.length ? (_angleExtent = typeof _ === "function" ? _ : constant(+_), radialline) : _angleExtent;
+    radialline.angleScale = function(_) {
+      return arguments.length ? (_angleScale = typeof _ === "function" ? _ : constant(+_), radialline) : _angleScale;
     };
     radialline.radius = function(_) {
       return arguments.length ? (_radius = typeof _ === "function" ? _ : constant(+_), radialline) : _radius;
     };
-    radialline.radiusExtent = function(_) {
-      return arguments.length ? (_radiusExtent = typeof _ === "function" ? _ : constant(+_), radialline) : _radiusExtent;
-    };
-    radialline.innerRadius = function(_) {
-      return arguments.length ? (_innerRadius = typeof _ === "function" ? _ : constant(+_), radialline) : _innerRadius;
-    };
-    radialline.outerRadius = function(_) {
-      return arguments.length ? (_outerRadius = typeof _ === "function" ? _ : constant(+_), radialline) : _outerRadius;
-    };
-    radialline.startAngle = function(_) {
-      return arguments.length ? (_startAngle = typeof _ === "function" ? _ : constant(+_), radialline) : _startAngle;
-    };
-    radialline.endAngle = function(_) {
-      return arguments.length ? (_endAngle = typeof _ === "function" ? _ : constant(+_), radialline) : _endAngle;
+    radialline.radiusScale = function(_) {
+      return arguments.length ? (_radiusScale = typeof _ === "function" ? _ : constant(+_), radialline) : _radiusScale;
     };
     radialline.interpolate = function(_) {
       return arguments.length ? (_interpolate = typeof _ === "function" ? _ : constant(''+_), radialline) : _interpolate;
+    };
+    radialline.clockwise = function(_) {
+      return arguments.length ? (_clockwise = typeof _ === "function" ? _ : constant(!!_), radialline ): _clockwise;
+    };
+    radialline.radiusDomain = function(_)
+    {
+      return arguments.length ? (_radiusDomain = typeof _ === 'function' ? _ : constant(_), radialline ): _radiusDomain;
+    };
+    radialline.radiusRange = function(_)
+    {
+      return arguments.length ? (_radiusRange = typeof _ === 'function' ? _ : constant(_), radialline ): _radiusRange;
+    };
+    radialline.angleDomain = function(_)
+    {
+      return arguments.length ? (_angleDomain = typeof _ === 'function' ? _ : constant(_), radialline ): _angleDomain;
+    };
+    radialline.angleRange = function(_)
+    {
+      return arguments.length ? (_angleRange = typeof _ === 'function' ? _ : constant(_), radialline ): _angleRange;
     };
     return radialline;
   }
