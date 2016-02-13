@@ -2,7 +2,28 @@
 
 var fs = require('fs');
 
-fs.readdir(function(err,fns)
+var csv = require('csv');
+
+var stringifier = csv.stringify();
+stringifier.write(['date','time','value']);
+
+fs.readdir('./cache', function(err,fns)
 {
-  
+  fns.forEach(function(fn)
+  {
+    try
+    {
+      var dat = JSON.parse(fs.readFileSync('./cache/' + fn, 'utf-8'));
+      var date = dat['activities-heart'][0]['dateTime'];
+      dat['activities-heart-intraday']['dataset'].forEach(function(d)
+      {
+        stringifier.write([date,d.time,d.value]);
+      });
+    }
+    catch (e)
+    {
+
+    }
+  });
+  stringifier.pipe(process.stdout);
 });
