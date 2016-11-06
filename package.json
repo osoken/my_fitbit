@@ -13,9 +13,10 @@
     "express-session": "*",
     "jade": "~1.11.0",
     "morgan": "~1.6.1",
-    "serve-favicon": "~2.3.0",
     "passport": "*",
+    "passport-fitbit-oauth2": "*",
     "passport-oauth": "*",
-    "passport-fitbit-oauth2": "*"
+    "serve-favicon": "~2.3.0",
+    "sqlite3": "^3.1.4"
   }
 }
